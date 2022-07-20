@@ -1,0 +1,42 @@
+                                                                    Intel vs. AT&T Syntax
+
+Aqui vamos falar um pouco sobre a diferença entre a síntaxe das arquiteturas Intel e AT&Tx86 (tanto 32 quanto 64) contém duas alternativas de síntaxes disponíveis. Alguns assemblers só consegue trabalhar com um ou outro, enquanto outros trabalham com os dois.
+
++--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+|                 |    Intel                                   |    AT&T                           |
++--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+|Comments         |      ;                                     |     //                            |
++--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+|Instructions     | Untagged add                               | Tagged with operand sizes: addq   |
++--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+|Imediates        |    0x100                                   |   %0x100                          |
++--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+|Indirect         |    [eax]                                   |    (%eax)                         |
++--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+|General Indirect |  [base + reg + reg * scale + displacement ]| displacement(reg, reg, scale)     |
++--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+
+É notável que no formato “General Indirect”, a síntaxe Intel vai processar base + displacement , pois os opcodes realmente permitem apenas um único deslocamento imediato. Na síntaxe AT&T, você terá que fazer isso sozinho, usando o resultado da soma com o terceiro valor dos parenteses.
+
+A principal diferença entre a síntaxe Intel e AT&T é que a Intel deuxa o tamanho dos operadores de instrução implícitos, enquanto a AT&T os torna explícitos, acrescentando sufixos ao nome da instrução. Um exemplo é a instrução add que soma dois valores:
+
+add eax, ebx;
+Conforme dito anteriormente, na síntaxe Intel, isso adiciona dois registros 32-bit juntos (ambos eax e ebx são 32-bit), e armazena o resultado em eax . (Instruções Intel tem primeiro o registro de destino, e em segundo, o registro fonte). Porque ambas fontes e destinos são 32-bit, o assembler sabe que precisa emitir uma instrução add 32-bit. Na síntaxe AT&T, a mesma instrução deve ser:
+
+addq %ebx, %eax ;
+Os nomes dos registros na síntaxe AT&T são prefixadas com % , e a ordem trocada, mas a grande diferença é o suffixo q adicionado na instrução add . q is um encurtamento para “quadword”, ex., valor 32-bit. O sufixo é necessário para falar ao assembler o tamanho dos operadores; isso não vai inteferir no uso correto da instrução apenas no tamanho dos registradores.
+
+Instruções que pode misturar operadores com tamanhos diferentes terão 2 (ou em alguns casos 3) sufíxos. Por exemplo, para adicionar um ebx low de 16-bits em eax, faríamos:
+
+add eax, bx ;
+na Intel, mas na AT&T isso deve ser:
+
+addzqd %bx, %eax ;
+onde d é entendido por “doubleword”. O z especifica que é uma adição unsigned (zero extension). Se quisermos uma adição signed, devemos usar s (sign extension).
+
+
+
+Agora que foi falado um pouco sobre as diferenças entre as síntaxes das arquiteturas Intel e AT&T, podemos encerrar por aqui e seguimos as pesquisas.
+
+Obrigado por ler!
+See you later, Stranger!
